@@ -3,8 +3,7 @@
 # Author: Jim Stallard/OWCS Team
 # Assumptions: all repos are available
 
-
-
+REPO_PREFIX="dev"
 repoStats() {
 echo "In repoStats"
 pwd
@@ -16,8 +15,8 @@ if [[ -f .git/config ]]; then
 			echo " using format yyyy-mm-dd"
 			exit 1
 	fi
-	b=`git log --remotes --since \"$1\" --until \"$2\" |grep commit|tail -1|sed 's/commit //'`
-	e=`git log --remotes --since \"$1\" --until \"$2\" |grep commit|head -1|sed 's/commit //'`
+	b=`git log  --since \"$1\" --until \"$2\" |grep commit|tail -1|sed 's/commit //'`
+	e=`git log  --since \"$1\" --until \"$2\" |grep commit|head -1|sed 's/commit //'`
 	
 	echo "starting at ${b}"
 	echo "ending at ${e}"
@@ -38,12 +37,15 @@ if [[ -f .git/config ]]; then
 genstat() {
 	echo "in genstat"
 	echo "3=${3}"
-	cd ~/dev/${3}
+	cd ~/${REPO_PREFIX}/${3}
 	pwd
-	echo "calling repoStats"
-	git checkout $4
-	git fetch origin $4
-	repoStats $1 $2
+	echo "Iterating over branches"
+	for b in $(git branch -r|cut -d'/' -f2);do 
+		echo "calling repoStats with branch $b"
+		git checkout $b
+		git fetch origin $b
+		repoStats $1 $2
+	done
 	cd ~/dev
 }
 
